@@ -12,3 +12,7 @@ Mysterious tool that detects things.
 
 - VS2019
 - [emgucv](https://github.com/emgucv/emgucv)
+
+
+## Changes
+Removed c++ component, uses DirectShowLib.Standard lib to get camera list

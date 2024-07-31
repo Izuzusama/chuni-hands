@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Emgu.CV;
+using DirectShowLib;
 
 namespace chuni_hands {
     public partial class MainWindow : Window {
@@ -88,14 +89,14 @@ namespace chuni_hands {
 
             switch (_config.SendKeyMode) {
                 case "be": {
-                    var airKeys = String.Concat(from sensor in _sensors select sensor.Active ? "1" : "0");
-                    _http.GetAsync(_config.EndPoint + "?k=" + airKeys);
-                    break;
-                }
+                        var airKeys = String.Concat(from sensor in _sensors select sensor.Active ? "1" : "0");
+                        _http.GetAsync(_config.EndPoint + "?k=" + airKeys);
+                        break;
+                    }
                 case "chuni_io": {
-                    ChuniIO.Send(_sensors);
-                    break;
-                }
+                        ChuniIO.Send(_sensors);
+                        break;
+                    }
                 default:
                     throw new Exception("unknown SendKeyMode");
             }
@@ -106,10 +107,11 @@ namespace chuni_hands {
         }
 
         private void RefreshCameras() {
-            var cameras = CameraHelper.CameraHelper.GetCameras();
+            var cameras = GetAllCameras();
             CameraCombo.Items.Clear();
-            foreach (var cam in cameras) {
-                CameraCombo.Items.Add($"[{cam.Id}] {cam.Name}");
+            for (int i = 0; i < cameras.Length; i++) {
+                string cam = cameras[i];
+                CameraCombo.Items.Add($"[{i}] {cam}");
             }
 
             if (_config.CameraId >= 0 && _config.CameraId < CameraCombo.Items.Count) {
@@ -210,6 +212,9 @@ namespace chuni_hands {
 
         private void RefreshCameraBtn_Click(object sender, RoutedEventArgs e) {
             RefreshCameras();
+        }
+        private string[] GetAllCameras() {
+            return DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice).Select(x => x.Name).ToArray();
         }
     }
 }
